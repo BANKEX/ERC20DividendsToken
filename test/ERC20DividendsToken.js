@@ -53,4 +53,27 @@ contract('VendingToken', (accounts) => {
         assert.equal(good, answer);
     })
 
+    it("should accept money", async function() {
+        await vending.sendTransaction({ value: 1e+18, from: accounts[0] });
+        let vendingAddress = await vending.address
+        assert.equal(web3.eth.getBalance(vendingAddress).toNumber(), 1e+18)
+    })
+
+    it("should calculate dividendsRightsOf properly", async function() {
+        await vending.sendTransaction({ value: 1e+18, from: accounts[0] });
+        let good = 1000000000000000000;
+        let answer = (await vending.dividendsRightsOf(accounts[0])).toNumber();
+        assert.equal(good, answer);
+    })
+
+    it("should allow investor to get his dividends", async function() {
+        let balance = web3.eth.getBalance(accounts[0]).toNumber()
+        await vending.sendTransaction({ value: 1e+18, from: accounts[3] });
+        await vending.dividendsRightsOf(accounts[0]);
+        await vending.releaseDividendsRights(1000000000000000000);
+        
+        assert.isAbove(web3.eth.getBalance(accounts[0]).toNumber(), balance)
+    })
+
+
 });
