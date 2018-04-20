@@ -4,8 +4,7 @@ const web3 = global.web3;
 
 contract('VendingToken', (accounts) => {
 
-    //Congress initial params for testing
-    
+    //initial params for testing
 
     beforeEach(async function() {
         vending = await VendingToken.new();
@@ -71,8 +70,21 @@ contract('VendingToken', (accounts) => {
         await vending.sendTransaction({ value: 1e+18, from: accounts[3] });
         await vending.dividendsRightsOf(accounts[0]);
         await vending.releaseDividendsRights(1000000000000000000);
-        
         assert.isAbove(web3.eth.getBalance(accounts[0]).toNumber(), balance)
+    })
+
+    it("should allow investor to get ALL his dividends", async function() {
+        let balance = web3.eth.getBalance(accounts[0]).toNumber()
+        await vending.sendTransaction({ value: 1e+18, from: accounts[5] });
+        let divs = (await vending.dividendsRightsOf(accounts[0])).toNumber();
+        await vending.releaseDividendsRights(divs);
+        assert.equal((web3.eth.getBalance(accounts[0]).toString()).substring(0,2), ((balance + divs).toString()).substring(0,2))
+    })
+
+    it("should allow admin to send dividents of investor by force", async function() {
+        await vending.sendTransaction({ value: 1e+18, from: accounts[3] });
+        let divs = (await vending.dividendsRightsOf(accounts[0])).toNumber();
+        assert.isOk(await vending.releaseDividendsRightsForce(accounts[0], divs));
     })
 
 
