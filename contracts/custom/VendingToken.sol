@@ -8,7 +8,7 @@ contract VendingToken is ERC20DividendsToken {
   uint8 public decimals = 18;
 
   function VendingToken() public {
-    totalSupply_ = 100**DECIMAL_MULTIPLIER;
+    totalSupply_ = 100 * DECIMAL_MULTIPLIER;
     balances[owner] = totalSupply_;
     emit Transfer(address(0), owner, totalSupply_);
   }
