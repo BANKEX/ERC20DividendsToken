@@ -1,5 +1,5 @@
-var DepositToken = artifacts.require("./DepositToken.sol");
+var ERC20DividendsToken = artifacts.require("./ERC20DividendsToken.sol");
 
-contract('DepositToken', (accounts) => {
+contract('ERC20DividendsToken', (accounts) => {
 
 });

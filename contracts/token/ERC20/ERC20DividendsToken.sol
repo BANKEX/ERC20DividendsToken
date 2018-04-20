@@ -25,7 +25,7 @@ contract ERC20DividendsToken is ERC20, Ownable {
   * @return An uint representing the amount of dividends rights owned by the passed address.
   */
   function dividendsRightsOf(address _owner) public view returns (uint balance) {
-    return totalAcceptedDividends*balances[_owner]/totalSupply_;
+    return totalAcceptedDividends*balances[_owner]/totalSupply_ + dividendsRightsFix[_owner];
   }
 
   /**
