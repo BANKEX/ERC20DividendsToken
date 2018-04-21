@@ -87,5 +87,42 @@ contract('VendingToken', (accounts) => {
         assert.isOk(await vending.releaseDividendsRightsForce(accounts[0], divs));
     })
 
+    it("should allow tokenholder to send his tokens to other account && this new token holder can get dividends from new accepted ETH", async function() {
+        await vending.sendTransaction({ value: 2e+18, from: accounts[1]});
+        let dividentsOfHolder = (await vending.dividendsRightsOf(accounts[0])).toNumber();
+        let balanceOfTokenHolder = (await vending.balanceOf(accounts[0])).toNumber();
+        let balanceOfNewHolder = (await vending.balanceOf(accounts[2])).toNumber();
+        let dividendsOfNewHolder = (await vending.dividendsRightsOf(accounts[2])).toNumber();
+        await vending.transfer(accounts[2], balanceOfTokenHolder);
+        await vending.sendTransaction({ value: 2e+18, from: accounts[5]});
+        let balanceOfNewHolderAfterTransfer = (await vending.balanceOf(accounts[2])).toNumber()
+        let dividendsOfNewHolderAfterTransfer = (await vending.dividendsRightsOf(accounts[2])).toNumber();
+        assert.equal(((dividendsOfNewHolderAfterTransfer).toString()).substring(0,4), ((dividendsOfNewHolder + dividentsOfHolder).toString()).substring(0,4), "dividents problem")
+        assert.equal(balanceOfNewHolderAfterTransfer, balanceOfNewHolder + balanceOfTokenHolder);
+        assert.notEqual(balanceOfNewHolderAfterTransfer, balanceOfNewHolder);
+        assert.notEqual(dividendsOfNewHolderAfterTransfer, dividendsOfNewHolder)
+    })
 
+    it("should allow tokenholder to send his tokens to other accounts && this new token holders can get dividends from new accepted ETH", async function() {
+        for (let i = 1; i < 7; i++) {
+            await vending.sendTransaction({ value: 2e+18, from: accounts[9]});
+            let balances = (await vending.balanceOf(accounts[i])).toNumber();
+            let rightsOfAcc = (await vending.dividendsRightsOf(accounts[i])).toNumber();
+            let balance = (await vending.balanceOf(accounts[0])).toNumber();
+            let dividendsOfHolder = (await vending.dividendsRightsOf(accounts[0])).toNumber();
+            await vending.transfer(accounts[i], balance / 10);
+            await vending.sendTransaction({ value: 1e+18, from: accounts[9]});
+            let balancesNew = (await vending.balanceOf(accounts[i])).toNumber();
+            let newRigths = (await vending.dividendsRightsOf(accounts[i])).toNumber();
+            assert.notEqual(rightsOfAcc, newRigths);
+            // console.log(i)
+            // console.log("___________")
+            // console.log("BEFORE")
+            // console.log(rightsOfAcc);
+            // console.log("___________")
+            // console.log("AFTER")
+            // console.log(newRigths);
+            // console.log("___________")
+        }
+    })
 });
