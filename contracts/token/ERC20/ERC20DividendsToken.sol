@@ -38,7 +38,7 @@ contract ERC20DividendsToken is ERC20, Ownable {
     require (balances[_from] >= _value);
     uint dividendsRightsFrom = dividendsRightsOf(_from);
     uint dividendsRightsTo = dividendsRightsOf(_to);
-    balances[msg.sender] = balances[msg.sender].sub(_value);
+    balances[_from] = balances[_from].sub(_value);
     balances[_to] = balances[_to].add(_value);
     dividendsRightsFix[_from] += dividendsRightsFrom - dividendsRightsOf(_from);
     dividendsRightsFix[_to] += dividendsRightsTo - dividendsRightsOf(_to);
