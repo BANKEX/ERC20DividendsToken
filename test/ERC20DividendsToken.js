@@ -10,6 +10,18 @@ contract('VendingToken', (accounts) => {
         vending = await VendingToken.new();
     });
 
+    it("should allow tokenholder to give permission to other account to transfer his tokens", async function() {
+        await vending.sendTransaction({ value: 1e+18, from: accounts[8]});
+        await vending.dividendsRightsOf(accounts[0]);
+        let rightsBefore = (await vending.dividendsRightsOf(accounts[2])).toNumber();
+        await vending.approve(accounts[1], 100000, {from: accounts[0]});
+        await vending.transferFrom((accounts[0]).toString(), (accounts[2]).toString(), 9000, {from: (accounts[1]).toString() });
+        await vending.sendTransaction({ value: 1e+18, from: accounts[8]});
+        let rightsAfter = (await vending.dividendsRightsOf(accounts[2])).toNumber();
+        assert.notEqual(rightsBefore, rightsAfter);
+    })
+
+
     it("should return that owner is accounts[0]", async function() {
         assert.equal(await vending.owner(), accounts[0]);
     })
@@ -115,14 +127,7 @@ contract('VendingToken', (accounts) => {
             let balancesNew = (await vending.balanceOf(accounts[i])).toNumber();
             let newRigths = (await vending.dividendsRightsOf(accounts[i])).toNumber();
             assert.notEqual(rightsOfAcc, newRigths);
-            // console.log(i)
-            // console.log("___________")
-            // console.log("BEFORE")
-            // console.log(rightsOfAcc);
-            // console.log("___________")
-            // console.log("AFTER")
-            // console.log(newRigths);
-            // console.log("___________")
         }
+
     })
 });
