@@ -1,97 +1,133 @@
-// var VendingToken = artifacts.require("./VendingToken.sol");
+const VendingToken = artifacts.require("./VendingToken.sol");
+// let ERC20DividendsToken = artifacts.require("./ERC20DividendsToken.sol");
+const web3 = global.web3;
 
-// contract('VendingToken', (accounts) => {
-//     let account1 = accounts[0];
-//     let account2 = accounts[1];
-//     let account3 = accounts[2];
+contract('VendingToken', (accounts) => {
 
-//     let balanceBeforePayDividendsFromAccount1;
-//     let balanceBeforePayDividendsFromAccount2;
-//     let gasUsed;
-     
-//     let meta;
+    //initial params for testing
 
-//     it("Owner of VendingCotract is the FIRST account", async () => {
-//         meta= await VendingToken.new();
-//         assert.equal(await meta.owner(), account1)
-//     });
+    beforeEach(async function() {
+        vending = await VendingToken.new();
+    });
 
-//     it("Balance of contract creator is 1e+20 VEND", async () => {
-//         let balance = await meta.balanceOf.call(account1);
-//         assert.equal(balance.toNumber(), 1e+20);
-//      });
+    it("should allow tokenholder to give permission to other account to transfer his tokens", async function() {
+        await vending.sendTransaction({ value: 1e+18, from: accounts[8]});
+        await vending.dividendsRightsOf(accounts[0]);
+        let rightsBefore = (await vending.dividendsRightsOf(accounts[2])).toNumber();
+        await vending.approve(accounts[1], 100000, {from: accounts[0]});
+        await vending.transferFrom((accounts[0]).toString(), (accounts[2]).toString(), 9000, {from: (accounts[1]).toString() });
+        await vending.sendTransaction({ value: 1e+18, from: accounts[8]});
+        let rightsAfter = (await vending.dividendsRightsOf(accounts[2])).toNumber();
+        assert.notEqual(rightsBefore, rightsAfter);
+    })
 
-//      it("Should transfer 1e+9 VEND to SECOND account", async () => {
-//         let isTransfer = await meta.transfer(account2, 1e+9);
-//         assert.ok(isTransfer);
-//      });
 
-//      it("Balance of SECOND account is 1e+9 VEND", async () => {
-//         let balance = await meta.balanceOf.call(account2);
-//         assert.equal(balance.toNumber(), 1e+9);
-//      });
+    it("should return that owner is accounts[0]", async function() {
+        assert.equal(await vending.owner(), accounts[0]);
+    })
 
-//      it("Third account should send 2 ETH to Smart Contract", async () => {
-//         let isSend = await meta.sendTransaction({ value: 2e+18, from: account3 })
-//         assert.ok(isSend);
-//      });
+    it("should return total balance = 10 ** 20", async function() {
+        let good = 10 ** 20;
+        let answer = (await vending.balanceOf(accounts[0])).toNumber();
+        assert.equal(good, answer);
+    })
 
-//      it("Should show dividends rights of SECOND account equal to 2e7", async () => {
-//         let dividends = await meta.dividendsRightsOf(account2);
-//         assert.equal(dividends.toNumber(), 2e+7);
-//      });
+    it("should allow to approve accounts[1-9]", async function() {
+        let good = "true";
+        for(let i = 1; i < 9; i++) {
+        let answer = (Boolean(await vending.approve(accounts[i], 1000))).toString();
+        assert.equal(good, answer);
+        }
+        
+    })
 
-//      it("Should show dividends rights of FIRST account equal to 1.99999999998e+18", async () => {
-//         let dividends = await meta.dividendsRightsOf(account1);
-//         assert.equal(dividends.toNumber(), 1.99999999998e+18);
-//      });
+    it("should show that account[1] allowed to tranfer 1000 from account[0]", async function() {
+        await vending.approve(accounts[1], 1000);
+        let good = 1000;
+        let answer = (await vending.allowance(accounts[0], accounts[1])).toNumber();
+        assert.equal(good, answer);
+    })
 
-//      it("Should show dividends rights of THIRD account equal to 0", async () => {
-//         let dividends = await meta.dividendsRightsOf(account3);
-//         assert.equal(dividends.toNumber(), 0);
-//      });
+    it("should show that account[0] can increase sum which account[1] can transfer", async function() {
+        await vending.approve(accounts[1], 1000);
+        await vending.increaseApproval(accounts[1], 100);
+        let good = 1100;
+        let answer = (await vending.allowance(accounts[0], accounts[1])).toNumber();
+        assert.equal(good, answer);
+    })
 
-//      it("Should release dividends rights of FIRST account. We will release 6543245 VEND", async () => {
-//         balanceBeforePayDividendsFromAccount1 = await web3.eth.getBalance(account1);
-//         let isRealised = await meta.releaseDividendsRights(6543245, {from: account1});
-//         assert.ok(isRealised);
-//      });
+    it("should show that account[0] can decrease sum which account[1] can transfer", async function() {
+        await vending.approve(accounts[1], 1000);
+        await vending.decreaseApproval(accounts[1], 100);
+        let good = 900;
+        let answer = (await vending.allowance(accounts[0], accounts[1])).toNumber();
+        assert.equal(good, answer);
+    })
 
-//      it("Should show burned ETH after send 6543245 VEND", async () => {
-//         let balance = await web3.eth.getBalance(account1);
-//         gasUsed = balanceBeforePayDividendsFromAccount1 - balance.toNumber() + 6543245;
-//      });
+    it("should accept money", async function() {
+        await vending.sendTransaction({ value: 1e+18, from: accounts[0] });
+        let vendingAddress = await vending.address
+        assert.equal(web3.eth.getBalance(vendingAddress).toNumber(), 1e+18)
+    })
 
-//      it("Should show dividends rights of FIRST account equal to 1999999999973456755", async () => {
-//         console.log("Burned ETH: " + gasUsed/10e18);
-//         let dividends = await meta.dividendsRightsOf(account1);
-//         assert.equal(dividends.toNumber(), 1999999999973456755);
-//      });
+    it("should calculate dividendsRightsOf properly", async function() {
+        await vending.sendTransaction({ value: 1e+18, from: accounts[0] });
+        let good = 1000000000000000000;
+        let answer = (await vending.dividendsRightsOf(accounts[0])).toNumber();
+        assert.equal(good, answer);
+    })
 
-//      it("Should release dividends rights of SECOND account. We will release 1.99999999e+7 VEND", async () => {
-//         balanceBeforePayDividendsFromAccount2 = await web3.eth.getBalance(account2);
-//         let isRealised = await meta.releaseDividendsRights(1.9999999e+7, {from: account2});
-//         assert.ok(isRealised);
-//      });
+    it("should allow investor to get his dividends", async function() {
+        let balance = web3.eth.getBalance(accounts[0]).toNumber()
+        await vending.sendTransaction({ value: 1e+18, from: accounts[3] });
+        await vending.dividendsRightsOf(accounts[0]);
+        await vending.releaseDividendsRights(1000000000000000000);
+        assert.isAbove(web3.eth.getBalance(accounts[0]).toNumber(), balance)
+    })
 
-//      it("Should show burned ETH after send 1.9999999e+7 VEND", async () => {
-//         let balance = await web3.eth.getBalance(account2);
-//         gasUsed = balanceBeforePayDividendsFromAccount2 - balance.toNumber() + 1.9999999e+7;
-       
-//      });
+    it("should allow investor to get ALL his dividends", async function() {
+        let balance = web3.eth.getBalance(accounts[0]).toNumber()
+        await vending.sendTransaction({ value: 1e+18, from: accounts[5] });
+        let divs = (await vending.dividendsRightsOf(accounts[0])).toNumber();
+        await vending.releaseDividendsRights(divs);
+        assert.equal((web3.eth.getBalance(accounts[0]).toString()).substring(0,2), ((balance + divs).toString()).substring(0,2))
+    })
 
-//      it("Should show dividends rights of SECOND account equal to 1", async () => {
-//         console.log("Burned ETH: " + gasUsed/10e18);
-//         let dividends = await meta.dividendsRightsOf(account2);
-//         assert.equal(dividends.toNumber(), 1);
-//      });
+    it("should allow admin to send dividents of investor by force", async function() {
+        await vending.sendTransaction({ value: 1e+18, from: accounts[3] });
+        let divs = (await vending.dividendsRightsOf(accounts[0])).toNumber();
+        assert.isOk(await vending.releaseDividendsRightsForce(accounts[0], divs));
+    })
 
-//      it("Balances of accounts (in VEND) shouldn't be changed after dividend payment", async () => {
-//         let balance1 = await meta.balanceOf.call(account1);
-//         let balance2 = await meta.balanceOf.call(account2);
-//         let balance3 = await meta.balanceOf.call(account3);
-//         assert.equal(balance1.toNumber(), 9.9999999999e+19, "The balance of 1-t accoun was changed");
-//         assert.equal(balance2.toNumber(), 1e+9, "The balance of 3-nd accoun was changed");
-//         assert.equal(balance3.toNumber(), 0, "The balance of 3-d accoun was changed");
-//      });
-// });
+    it("should allow tokenholder to send his tokens to other account && this new token holder can get dividends from new accepted ETH", async function() {
+        await vending.sendTransaction({ value: 2e+18, from: accounts[1]});
+        let dividentsOfHolder = (await vending.dividendsRightsOf(accounts[0])).toNumber();
+        let balanceOfTokenHolder = (await vending.balanceOf(accounts[0])).toNumber();
+        let balanceOfNewHolder = (await vending.balanceOf(accounts[2])).toNumber();
+        let dividendsOfNewHolder = (await vending.dividendsRightsOf(accounts[2])).toNumber();
+        await vending.transfer(accounts[2], balanceOfTokenHolder);
+        await vending.sendTransaction({ value: 2e+18, from: accounts[5]});
+        let balanceOfNewHolderAfterTransfer = (await vending.balanceOf(accounts[2])).toNumber()
+        let dividendsOfNewHolderAfterTransfer = (await vending.dividendsRightsOf(accounts[2])).toNumber();
+        assert.equal(((dividendsOfNewHolderAfterTransfer).toString()).substring(0,4), ((dividendsOfNewHolder + dividentsOfHolder).toString()).substring(0,4), "dividents problem")
+        assert.equal(balanceOfNewHolderAfterTransfer, balanceOfNewHolder + balanceOfTokenHolder);
+        assert.notEqual(balanceOfNewHolderAfterTransfer, balanceOfNewHolder);
+        assert.notEqual(dividendsOfNewHolderAfterTransfer, dividendsOfNewHolder)
+    })
+
+    it("should allow tokenholder to send his tokens to other accounts && this new token holders can get dividends from new accepted ETH", async function() {
+        for (let i = 1; i < 7; i++) {
+            await vending.sendTransaction({ value: 2e+18, from: accounts[9]});
+            let balances = (await vending.balanceOf(accounts[i])).toNumber();
+            let rightsOfAcc = (await vending.dividendsRightsOf(accounts[i])).toNumber();
+            let balance = (await vending.balanceOf(accounts[0])).toNumber();
+            let dividendsOfHolder = (await vending.dividendsRightsOf(accounts[0])).toNumber();
+            await vending.transfer(accounts[i], balance / 10);
+            await vending.sendTransaction({ value: 1e+18, from: accounts[9]});
+            let balancesNew = (await vending.balanceOf(accounts[i])).toNumber();
+            let newRigths = (await vending.dividendsRightsOf(accounts[i])).toNumber();
+            assert.notEqual(rightsOfAcc, newRigths);
+        }
+
+    })
+});
