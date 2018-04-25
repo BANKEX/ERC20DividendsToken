@@ -10,6 +10,8 @@ contract('VendingToken', (accounts) => {
         vending = await VendingToken.new();
     });
 
+   
+
     it("should allow tokenholder to give permission to other account to transfer his tokens", async function() {
         await vending.sendTransaction({ value: 1e+18, from: accounts[8]});
         await vending.dividendsRightsOf(accounts[0]);
@@ -82,7 +84,7 @@ contract('VendingToken', (accounts) => {
         await vending.sendTransaction({ value: 1e+18, from: accounts[3] });
         await vending.dividendsRightsOf(accounts[0]);
         await vending.releaseDividendsRights(1000000000000000000);
-        assert.isAbove(web3.eth.getBalance(accounts[0]).toNumber(), balance)
+        assert.notEqual(web3.eth.getBalance(accounts[0]).toNumber(), balance)
     })
 
     it("should allow investor to get ALL his dividends", async function() {
@@ -94,9 +96,12 @@ contract('VendingToken', (accounts) => {
     })
 
     it("should allow admin to send dividents of investor by force", async function() {
+        let balance = web3.eth.getBalance(accounts[0]).toNumber()
         await vending.sendTransaction({ value: 1e+18, from: accounts[3] });
         let divs = (await vending.dividendsRightsOf(accounts[0])).toNumber();
-        assert.isOk(await vending.releaseDividendsRightsForce(accounts[0], divs));
+        await vending.releaseDividendsRightsForce(accounts[0], divs)
+        let balanceNew = web3.eth.getBalance(accounts[0]).toNumber()
+        assert.notEqual(balanceNew, balance);
     })
 
     it("should allow tokenholder to send his tokens to other account && this new token holder can get dividends from new accepted ETH", async function() {
@@ -115,7 +120,7 @@ contract('VendingToken', (accounts) => {
         assert.notEqual(dividendsOfNewHolderAfterTransfer, dividendsOfNewHolder)
     })
 
-    it("should allow tokenholder to send his tokens to other accounts && this new token holders can get dividends from new accepted ETH", async function() {
+    it("should allow tokenholder to send his tokens to other accounts", async function() {
         for (let i = 1; i < 7; i++) {
             await vending.sendTransaction({ value: 2e+18, from: accounts[9]});
             let balances = (await vending.balanceOf(accounts[i])).toNumber();
@@ -128,6 +133,28 @@ contract('VendingToken', (accounts) => {
             let newRigths = (await vending.dividendsRightsOf(accounts[i])).toNumber();
             assert.notEqual(rightsOfAcc, newRigths);
         }
-
     })
+    it("should allow owner to decrease aproval of account", async function(){
+        await vending.sendTransaction({ value: 2e+18, from: accounts[7]});
+        await vending.approve(accounts[1], 10000, {from: accounts[0]});
+        let balanceBefore = (await vending.allowance(accounts[0], accounts[1])).toNumber();
+        await vending.decreaseApproval(accounts[1], 1000, {from: accounts[0]});
+        let balanceAfter = (await vending.allowance(accounts[0], accounts[1])).toNumber();
+        assert.notEqual(balanceAfter, balanceBefore);
+        assert.equal(balanceAfter + 1000, balanceBefore);
+    })
+    it("should allow owner to increase aproval of account", async function(){
+        await vending.sendTransaction({ value: 2e+18, from: accounts[7]});
+        await vending.approve(accounts[1], 10000, {from: accounts[0]});
+        let balanceBefore = (await vending.allowance(accounts[0], accounts[1])).toNumber();
+        await vending.increaseApproval(accounts[1], 1000, {from: accounts[0]});
+        let balanceAfter = (await vending.allowance(accounts[0], accounts[1])).toNumber();
+        assert.notEqual(balanceAfter, balanceBefore);
+        assert.equal(balanceAfter - 1000, balanceBefore);
+    })
+
+    it("should make all economic circle", async function(){
+        
+    })
+
 });
