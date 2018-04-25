@@ -154,7 +154,28 @@ contract('VendingToken', (accounts) => {
     })
 
     it("should make all economic circle", async function(){
+        let balance = web3.eth.getBalance(accounts[0]).toNumber()
+        await vending.sendTransaction({ value: 2e+18, from: accounts[7]});
+        await vending.releaseDividendsRights(1e+18, {from: accounts[0]});
+        let balanceNew = web3.eth.getBalance(accounts[0]).toNumber()
+        assert.notEqual(balance, balanceNew);
+
+        let value = 100000;
+
+        for(let i = 1; i < 5; i++) {
+            let bal = (await vending.balanceOf(accounts[i])).toNumber();
+            await vending.transfer(accounts[i], 100000000, {from: accounts[0]});
+            let balNew = (await vending.balanceOf(accounts[i])).toNumber();
+            assert.equal(bal + 100000000, balNew);
+        }
         
+        for(let i = 1; i < 5; i++) { 
+          await vending.sendTransaction({ value: 1e+18, from: accounts[7]});
+          let balances = web3.eth.getBalance(accounts[2]).toNumber();
+          await vending.releaseDividendsRights(1112, {from: accounts[2]});
+          let balancesNew = web3.eth.getBalance(accounts[2]).toNumber();
+          assert.notEqual(balances, balancesNew);
+        }
     })
 
 });
