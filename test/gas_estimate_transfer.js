@@ -4,39 +4,37 @@
 
 var ERC20DividendsToken = artifacts.require("./ERC20DividendsToken.sol");
 var StandardDividendsToken = artifacts.require("./StandardDividendsToken.sol");
+var V2Token = artifacts.require("./V2Token.sol");
+var VendingToken = artifacts.require("./VendingToken.sol");
 
 
-const _value = 10**18;
-const _tokens_init = 10**6;
+const _tokens_to_transfer = 5 * 10**18;
 
-contract('ERC20DividendsToken', (accounts) => {
+contract('VendingToken (from ERC20DividendsToken)', (accounts) => {
 
-    it("Should deploy", async () => {
-        let instance = await ERC20DividendsToken.new();
+    it("Should deploy and transfer", async () => {
+        let instance = await VendingToken.new();
         let receipt = await web3.eth.getTransactionReceipt(instance.transactionHash);
-        console.log(`ERC20DividendsToken deploy gas cost: ${receipt.gasUsed}`);
+        console.log(`VendingToken deploy gas cost: ${receipt.gasUsed}`);
 
-        // receipt = await instance.transfer(accounts[0], test_value, {from: accounts[1]});
+        let tx = await instance.transfer(accounts[1], _tokens_to_transfer);
 
-        // console.log(`ERC20DividendsToken transfer gas cost: ${receipt.gasUsed}`);
+        console.log(`VendingToken transfer gas cost: ${tx.receipt.gasUsed}`);
 
     });
 });
 
-contract('StandardDividendsToken', (accounts) => {
+contract('V2Token (from StandardDividendsToken)', (accounts) => {
 
-    it("Should deploy", async () => {
+    it("Should deploy and transfer", async () => {
 
-        let instance = await StandardDividendsToken.new();
+        let instance = await V2Token.new();
         let receipt = await web3.eth.getTransactionReceipt(instance.transactionHash);
-        console.log(`StandardDividendsToken deploy gas cost: ${receipt.gasUsed}`);
+        console.log(`V2Token deploy gas cost: ${receipt.gasUsed}`);
 
-        await instance.mint(accounts[1], _tokens_init)
+        let tx = await instance.transfer(accounts[1], _tokens_to_transfer);
 
-        let tx = await instance.transfer(accounts[0], 1, {from: accounts[1]});
-
-
-        console.log(`StandardDividendsToken transfer gas cost: ${tx.receipt.gasUsed}`);
+        console.log(`V2Token transfer gas cost: ${tx.receipt.gasUsed}`);
     });
 });
 
