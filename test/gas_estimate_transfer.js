@@ -21,10 +21,19 @@ contract('VendingToken (from ERC20DividendsToken)', (accounts) => {
 
         console.log(`VendingToken transfer gas cost: ${tx.receipt.gasUsed}`);
 
+        await instance.approve(accounts[1], 100000);
+
+        tx = await instance.transferFrom(accounts[0], accounts[2], 9000, {from: accounts[1]});
+
+        console.log(`VendingToken transferFrom gas cost: ${tx.receipt.gasUsed}`);
     });
 });
 
 contract('V2Token (from StandardDividendsToken)', (accounts) => {
+
+    const host  = accounts[0]
+    const alice = accounts[1]
+    const bob   = accounts[2]
 
     it("Should deploy and transfer", async () => {
 
@@ -35,6 +44,13 @@ contract('V2Token (from StandardDividendsToken)', (accounts) => {
         let tx = await instance.transfer(accounts[1], _tokens_to_transfer);
 
         console.log(`V2Token transfer gas cost: ${tx.receipt.gasUsed}`);
+
+
+        await instance.approve(alice, 100000);
+
+        tx = await instance.transferFrom(host, bob, 90000, {from: alice})
+
+        console.log(`VendingToken transferFrom gas cost: ${tx.receipt.gasUsed}`);
     });
 });
 
