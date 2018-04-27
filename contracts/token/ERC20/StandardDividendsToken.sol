@@ -1,12 +1,11 @@
 pragma solidity ^0.4.21;
 
-import "./StandardToken.sol";
-import "../../ownership/Ownable.sol";
+import "../../../node_modules/zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
 
 /**
  * @title Standard token with dividends distribution support
  */
-contract StandardDividendsToken is StandardToken, Ownable {
+contract StandardDividendsToken is MintableToken {
 
   using SafeMath for uint;
 
@@ -73,10 +72,17 @@ contract StandardDividendsToken is StandardToken, Ownable {
   * @param _value The amount to be transferred.
   */
   function transfer(address _to, uint _value) public returns (bool) {
-    require(_to != address(0));
 
-    moveBalance(msg.sender, _to, _value);
-    emit Transfer(msg.sender, _to, _value);
+    address _from = msg.sender;
+
+    uint dr_from = dividendsRightsOf(_from);
+    uint dr_to   = dividendsRightsOf(_to);
+
+    super.transfer(_to, _value);
+
+    dividendsRightsFix[_from] += dr_from - dividendsRightsOf(_from);
+    dividendsRightsFix[_to] += dr_to - dividendsRightsOf(_to);
+
     return true;
   }
 
@@ -87,12 +93,15 @@ contract StandardDividendsToken is StandardToken, Ownable {
    * @param _value uint the amount of tokens to be transferred
    */
   function transferFrom(address _from, address _to, uint _value) public returns (bool) {
-    require(_to != address(0));
-    require(_value <= allowed[_from][msg.sender]);
 
-    moveBalance(_from, _to, _value);
-    allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
-    emit Transfer(_from, _to, _value);
+    uint dr_from = dividendsRightsOf(_from);
+    uint dr_to   = dividendsRightsOf(_to);
+
+    super.transferFrom(_from, _to, _value);
+
+    dividendsRightsFix[_from] += dr_from - dividendsRightsOf(_from);
+    dividendsRightsFix[_to] += dr_to - dividendsRightsOf(_to);
+
     return true;
   }
 
