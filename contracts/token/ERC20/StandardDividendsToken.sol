@@ -11,7 +11,7 @@ contract StandardDividendsToken is StandardToken, Ownable {
 
   using SafeMath for uint;
 
-  mapping (address => uint) dividendsRightsFix;
+  mapping (address => uint) public dividendsRightsFix;
 
   uint totalAcceptedDividends;
 
@@ -25,23 +25,6 @@ contract StandardDividendsToken is StandardToken, Ownable {
   }
 
   /**
-  * @dev transfer token for a specified address
-  * @param _from The address to transfer from.
-  * @param _to The address to transfer to.
-  * @param _value The amount to be transferred.
-  */
-  function moveBalance(address _from, address _to, uint _value) private {
-    require (balances[_from] >= _value);
-    uint dividendsRightsFrom = dividendsRightsOf(_from);
-    uint dividendsRightsTo = dividendsRightsOf(_to);
-    balances[msg.sender] = balances[msg.sender].sub(_value);
-    balances[_to] = balances[_to].add(_value);
-    dividendsRightsFix[_from] += dividendsRightsFrom - dividendsRightsOf(_from);
-    dividendsRightsFix[_to] += dividendsRightsTo - dividendsRightsOf(_to);
-  }
-
-
-  /**
   * @dev release dividends rights
   * @param _value The amount of dividends to be transferred.
   */
@@ -53,6 +36,11 @@ contract StandardDividendsToken is StandardToken, Ownable {
     msg.sender.transfer(_value);
     return true;
   }
+
+  function getDRF (address user) public view returns(uint v) {
+    return dividendsRightsFix[user];
+  }
+
 
   /**
   * @dev release dividends rights for a specified address
