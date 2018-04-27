@@ -10,6 +10,7 @@ import "../../ownership/Ownable.sol";
 contract ERC20DividendsToken is ERC20, Ownable {
 
   using SafeMath for uint;
+  uint constant DECIMAL_MULTIPLIER = 10 ** 18;
 
   mapping (address => uint) balances;
   mapping (address => uint) dividendsRightsFix;
@@ -17,7 +18,7 @@ contract ERC20DividendsToken is ERC20, Ownable {
 
 
   uint totalSupply_;
-  uint totalAcceptedDividends;
+  uint dividendsPerToken;
 
   /**
   * @dev Gets the dividends rights of the specified address.
@@ -25,7 +26,8 @@ contract ERC20DividendsToken is ERC20, Ownable {
   * @return An uint representing the amount of dividends rights owned by the passed address.
   */
   function dividendsRightsOf(address _owner) public view returns (uint balance) {
-    return totalAcceptedDividends*balances[_owner]/totalSupply_ + dividendsRightsFix[_owner];
+    uint rights = dividendsPerToken * balances[_owner] / DECIMAL_MULTIPLIER + dividendsRightsFix[_owner];
+    return int(rights) < 0 ? 0 : rights;
   }
 
   /**
@@ -36,12 +38,11 @@ contract ERC20DividendsToken is ERC20, Ownable {
   */
   function moveBalance(address _from, address _to, uint _value) private {
     require (balances[_from] >= _value);
-    uint dividendsRightsFrom = dividendsRightsOf(_from);
-    uint dividendsRightsTo = dividendsRightsOf(_to);
-    balances[msg.sender] = balances[msg.sender].sub(_value);
+    uint fix = dividendsPerToken * _value / DECIMAL_MULTIPLIER;
+    balances[_from] = balances[_from].sub(_value);
+    dividendsRightsFix[_to] -= fix;
+    dividendsRightsFix[_from] += fix;
     balances[_to] = balances[_to].add(_value);
-    dividendsRightsFix[_from] += dividendsRightsFrom - dividendsRightsOf(_from);
-    dividendsRightsFix[_to] += dividendsRightsTo - dividendsRightsOf(_to);
   }
 
 
@@ -52,7 +53,6 @@ contract ERC20DividendsToken is ERC20, Ownable {
   function releaseDividendsRights(uint _value) public returns(bool) {
     uint _dividendsRights = dividendsRightsOf(msg.sender);
     require(_dividendsRights >= _value);
-    require(int(_dividendsRights) > 0);
     dividendsRightsFix[msg.sender] -= _value;
     msg.sender.transfer(_value);
     return true;
@@ -66,7 +66,6 @@ contract ERC20DividendsToken is ERC20, Ownable {
   function releaseDividendsRightsForce(address _for, uint _value) public onlyOwner returns(bool) {
     uint _dividendsRights = dividendsRightsOf(_for);
     require(_dividendsRights >= _value);
-    require(int(_dividendsRights) > 0);
     dividendsRightsFix[_for] -= _value;
     _for.transfer(_value);
     return true;
@@ -185,7 +184,7 @@ contract ERC20DividendsToken is ERC20, Ownable {
    * @dev Accept dividends 
    */
   function () public payable {
-    totalAcceptedDividends += msg.value;
+    dividendsPerToken += msg.value*DECIMAL_MULTIPLIER/totalSupply_;
   }
 
 }
