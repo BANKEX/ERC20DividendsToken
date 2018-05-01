@@ -1,16 +1,10 @@
-
-
-
-
-var ERC20DividendsToken = artifacts.require("./ERC20DividendsToken.sol");
-var StandardDividendsToken = artifacts.require("./StandardDividendsToken.sol");
 var V2Token = artifacts.require("./V2Token.sol");
 var VendingToken = artifacts.require("./VendingToken.sol");
 
 
 const _tokens_to_transfer = 5 * 10**18;
 
-contract('VendingToken (from ERC20DividendsToken)', (accounts) => {
+contract('VendingToken (from ERC20DividendsTokenFull)', (accounts) => {
 
     it("Should deploy and transfer", async () => {
         let instance = await VendingToken.new();
@@ -29,7 +23,7 @@ contract('VendingToken (from ERC20DividendsToken)', (accounts) => {
     });
 });
 
-contract('V2Token (from StandardDividendsToken)', (accounts) => {
+contract('V2Token (from ERC20DividendsToken)', (accounts) => {
 
     const host  = accounts[0]
     const alice = accounts[1]

@@ -2,6 +2,10 @@ const VendingToken = artifacts.require("./VendingToken.sol");
 // let ERC20DividendsToken = artifacts.require("./ERC20DividendsToken.sol");
 const web3 = global.web3;
 
+const tw = web3._extend.utils.toWei
+const fw = v=>web3._extend.utils.fromWei(v).toString()
+
+
 contract('VendingToken', (accounts) => {
 
     //initial params for testing
@@ -11,12 +15,12 @@ contract('VendingToken', (accounts) => {
     });
 
     it("should allow tokenholder to give permission to other account to transfer his tokens", async function() {
-        await vending.sendTransaction({ value: 1e+18, from: accounts[8]});
+        await vending.sendTransaction({ value: tw(1), from: accounts[8]});
         await vending.dividendsRightsOf(accounts[0]);
         let rightsBefore = (await vending.dividendsRightsOf(accounts[2])).toNumber();
-        await vending.approve(accounts[1], 100000, {from: accounts[0]});
-        await vending.transferFrom((accounts[0]).toString(), (accounts[2]).toString(), 9000, {from: (accounts[1]).toString() });
-        await vending.sendTransaction({ value: 1e+18, from: accounts[8]});
+        await vending.approve(accounts[1], tw(0.2), {from: accounts[0]});
+        await vending.transferFrom(accounts[0], accounts[2], tw(0.1), {from: accounts[1]});
+        await vending.sendTransaction({ value: tw(1), from: accounts[8]});
         let rightsAfter = (await vending.dividendsRightsOf(accounts[2])).toNumber();
         assert.notEqual(rightsBefore, rightsAfter);
     })
