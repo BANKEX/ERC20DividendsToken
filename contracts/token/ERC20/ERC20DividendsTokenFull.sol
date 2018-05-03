@@ -1,5 +1,4 @@
-pragma solidity ^0.4.21;
-
+pragma solidity ^0.4.23;
 
 
 library SafeMath {
@@ -262,7 +261,7 @@ contract ERC20DividendsTokenFull{
     uint _dividendsPerToken = dividendsPerToken;
     uint _totalSupply = totalSupply_;
     require(_totalSupply > 0);
-    _dividendsPerToken = _dividendsPerToken.add(msg.value.mul(DECIMAL_MULTIPLIER)/totalSupply_);
+    _dividendsPerToken = _dividendsPerToken.add(msg.value.mul(DECIMAL_MULTIPLIER)/_totalSupply);
     require(_dividendsPerToken.mul(_totalSupply) <= INT256_MAX);
     dividendsPerToken = _dividendsPerToken;
   }

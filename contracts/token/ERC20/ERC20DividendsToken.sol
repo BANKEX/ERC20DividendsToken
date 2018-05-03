@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 
 
@@ -101,7 +101,7 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
     uint _dividendsPerToken = dividendsPerToken;
     uint _totalSupply = totalSupply_;
     require(_totalSupply > 0);
-    _dividendsPerToken = _dividendsPerToken.add(msg.value.mul(DECIMAL_MULTIPLIER)/totalSupply_);
+    _dividendsPerToken = _dividendsPerToken.add(msg.value.mul(DECIMAL_MULTIPLIER)/_totalSupply);
     require(_dividendsPerToken.mul(_totalSupply) <= INT256_MAX);
     dividendsPerToken = _dividendsPerToken;
   }
