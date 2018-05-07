@@ -6,3 +6,4 @@ build/
 /*.cmd
 *.sh
 /*.deprecated
+docs/bundle.js.map
