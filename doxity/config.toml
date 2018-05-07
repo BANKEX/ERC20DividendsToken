@@ -1,8 +1,8 @@
 linkPrefix = "/ERC20DividendsToken"
-name = "multi_token"
+name = "ERC20DividendsToken"
 version = "1.0.0"
 description = ""
-buildTime = 2018-05-07T17:30:51.206Z
+buildTime = 2018-05-07T17:33:24.213Z
 target = "doxity"
 src = "contracts/**"
 dir = "pages/docs"

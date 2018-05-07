@@ -1,5 +1,5 @@
 {
-  "name": "multi_token",
+  "name": "ERC20DividendsToken",
   "version": "1.0.0",
   "description": "",
   "main": "truffle-config.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@git.bankex.team:proof_of_asset/multi_token.git"
+    "url": "git@git.bankex.team:proof_of_asset/ERC20DividendsToken.git"
   },
   "author": "",
   "license": "MIT",
