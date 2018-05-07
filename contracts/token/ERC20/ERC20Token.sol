@@ -13,16 +13,16 @@ import "./ERC20TokenInterface.sol";
 contract ERC20Token is ERC20TokenInterface{
   using SafeMath for uint;
 
-  mapping(address => uint) balances;
-  mapping (address => mapping (address => uint)) allowed;
+  mapping(address => uint) internal balances;
+  mapping (address => mapping (address => uint)) internal allowed;
 
-  uint totalSupply_;
+  uint internal totalSupply_;
 
 
   /**
   * @dev total number of tokens in existence
   */
-  function totalSupply() public view returns (uint) {
+  function totalSupply() external view returns (uint) {
     return totalSupply_;
   }
 
@@ -60,7 +60,7 @@ contract ERC20Token is ERC20TokenInterface{
   * @param _to The address to transfer to.
   * @param _value The amount to be transferred.
   */
-  function transfer(address _to, uint _value) public returns (bool) {
+  function transfer(address _to, uint _value) external returns (bool) {
     return transfer_(msg.sender, _to, _value);
   }
 
@@ -70,7 +70,7 @@ contract ERC20Token is ERC20TokenInterface{
    * @param _to address The address which you want to transfer to
    * @param _value uint the amount of tokens to be transferred
    */
-  function transferFrom(address _from, address _to, uint _value) public returns (bool) {
+  function transferFrom(address _from, address _to, uint _value) external returns (bool) {
     return transferAllowed_(_from, _to, _value);
   }
 
@@ -79,7 +79,7 @@ contract ERC20Token is ERC20TokenInterface{
   * @param _owner The address to query the the balance of.
   * @return An uint representing the amount owned by the passed address.
   */
-  function balanceOf(address _owner) public view returns (uint balance) {
+  function balanceOf(address _owner) external view returns (uint balance) {
     return balances[_owner];
   }
 
@@ -94,7 +94,7 @@ contract ERC20Token is ERC20TokenInterface{
    * @param _spender The address which will spend the funds.
    * @param _value The amount of tokens to be spent.
    */
-  function approve(address _spender, uint _value) public returns (bool) {
+  function approve(address _spender, uint _value) external returns (bool) {
     allowed[msg.sender][_spender] = _value;
     emit Approval(msg.sender, _spender, _value);
     return true;
@@ -106,7 +106,7 @@ contract ERC20Token is ERC20TokenInterface{
    * @param _spender address The address which will spend the funds.
    * @return A uint specifying the amount of tokens still available for the spender.
    */
-  function allowance(address _owner, address _spender) public view returns (uint) {
+  function allowance(address _owner, address _spender) external view returns (uint) {
     return allowed[_owner][_spender];
   }
 
@@ -120,7 +120,7 @@ contract ERC20Token is ERC20TokenInterface{
    * @param _spender The address which will spend the funds.
    * @param _addedValue The amount of tokens to increase the allowance by.
    */
-  function increaseApproval(address _spender, uint _addedValue) public returns (bool) {
+  function increaseApproval(address _spender, uint _addedValue) external returns (bool) {
     uint _allowed = allowed[msg.sender][_spender];
     _allowed = _allowed.add(_addedValue);
     allowed[msg.sender][_spender] = _allowed;
@@ -138,7 +138,7 @@ contract ERC20Token is ERC20TokenInterface{
    * @param _spender The address which will spend the funds.
    * @param _subtractedValue The amount of tokens to decrease the allowance by.
    */
-  function decreaseApproval(address _spender, uint _subtractedValue) public returns (bool) {
+  function decreaseApproval(address _spender, uint _subtractedValue) external returns (bool) {
     uint _allowed = allowed[msg.sender][_spender];
     if (_subtractedValue > _allowed) {
       _allowed = 0;

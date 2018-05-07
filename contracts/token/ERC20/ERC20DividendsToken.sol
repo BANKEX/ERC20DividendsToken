@@ -16,15 +16,19 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
   uint constant DECIMAL_MULTIPLIER = 10 ** 18;
   uint constant INT256_MAX = 1 << 255 - 1;
 
-  mapping (address => uint) public dividendsRightsFix;
-  uint dividendsPerToken;
+  mapping (address => uint) internal dividendsRightsFix;
+  uint internal dividendsPerToken;
 
   /**
   * @dev Gets the dividends rights of the specified address.
   * @param _owner The address to query the the balance of.
   * @return An uint representing the amount of dividends rights owned by the passed address.
   */
-  function dividendsRightsOf(address _owner) public view returns (uint balance) {
+  function dividendsRightsOf(address _owner) external view returns (uint balance) {
+    return dividendsRightsOf_(_owner);
+  }
+
+  function dividendsRightsOf_(address _owner) internal view returns (uint balance) {
     uint rights = dividendsPerToken * balances[_owner] / DECIMAL_MULTIPLIER + dividendsRightsFix[_owner];
     return int(rights) < 0 ? 0 : rights;
   }
@@ -36,7 +40,7 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
   * @param _for The address to transfer for.
   */
   function releaseDividendsRights_(address _for, uint _value) internal returns(bool) {
-    uint _dividendsRights = dividendsRightsOf(_for);
+    uint _dividendsRights = dividendsRightsOf_(_for);
     require(_dividendsRights >= _value);
     dividendsRightsFix[_for] -= _value;
     msg.sender.transfer(_value);
@@ -49,7 +53,7 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
   * @dev release dividends rights
   * @param _value The amount of dividends to be transferred.
   */
-  function releaseDividendsRights(uint _value) public returns(bool) {
+  function releaseDividendsRights(uint _value) external returns(bool) {
     return releaseDividendsRights_(msg.sender, _value);
   }
 
@@ -73,7 +77,7 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
   * @param _to The address to transfer to.
   * @param _value The amount to be transferred.
   */
-  function transfer(address _to, uint _value) public returns (bool) {
+  function transfer(address _to, uint _value) external returns (bool) {
     dividendsRightsFixUpdate_(msg.sender, _to, _value);
     return transfer_(msg.sender, _to, _value);
   }
@@ -85,7 +89,7 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
    * @param _to address The address which you want to transfer to
    * @param _value uint the amount of tokens to be transferred
    */
-  function transferFrom(address _from, address _to, uint _value) public returns (bool) {
+  function transferFrom(address _from, address _to, uint _value) external returns (bool) {
     uint _allowed = allowed[_from][msg.sender];
     require(_value <= _allowed);
     allowed[_from][msg.sender] = _allowed.sub(_value);
@@ -104,5 +108,6 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
     _dividendsPerToken = _dividendsPerToken.add(msg.value.mul(DECIMAL_MULTIPLIER)/_totalSupply);
     require(_dividendsPerToken.mul(_totalSupply) <= INT256_MAX);
     dividendsPerToken = _dividendsPerToken;
+    emit AcceptDividends(msg.value);
   }
 }

@@ -1,0 +1,7 @@
+{
+  "target": "doxity",
+  "src": "contracts/**",
+  "dir": "pages/docs",
+  "out": "docs",
+  "blacklist": ["Migrations.sol", "Ownable.sol", "SafeMath.sol"]
+}

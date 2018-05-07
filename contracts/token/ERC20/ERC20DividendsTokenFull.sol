@@ -53,6 +53,8 @@ contract ERC20DividendsTokenFull{
   event Approval(address indexed owner, address indexed spender, uint256 value);
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
   event ReleaseDividendsRights(address indexed _for, uint256 value);
+  event AcceptDividends(uint256 value);
+
 
 
 
@@ -264,6 +266,7 @@ contract ERC20DividendsTokenFull{
     _dividendsPerToken = _dividendsPerToken.add(msg.value.mul(DECIMAL_MULTIPLIER)/_totalSupply);
     require(_dividendsPerToken.mul(_totalSupply) <= INT256_MAX);
     dividendsPerToken = _dividendsPerToken;
+    emit AcceptDividends(msg.value);
   }
 
 }

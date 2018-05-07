@@ -13,11 +13,11 @@ contract VendingToken is ERC20DividendsTokenFull, Ownable {
   * @param _for The address to transfer for.
   * @param _value The amount of dividends to be transferred.
   */
-  function releaseDividendsRightsForce(address _for, uint _value) public onlyOwner returns(bool) {
+  function releaseDividendsRightsForce(address _for, uint _value) external onlyOwner returns(bool) {
     return releaseDividendsRights_(_for, _value);
   }
 
-  function VendingToken() public {
+  constructor() public {
     uint _totalSupply = 100 * DECIMAL_MULTIPLIER;
     totalSupply_ = _totalSupply;
     balances[owner] = _totalSupply;
