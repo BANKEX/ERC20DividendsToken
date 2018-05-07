@@ -263,9 +263,9 @@ contract('VendingToken', (accounts) => {
         const dividends2 = (await vending.dividendsRightsOf(accounts[2]));
         const dividends3 = (await vending.dividendsRightsOf(accounts[3]));
         const totalDividends = dividends0.plus(dividends1).plus(dividends2).plus(dividends3);
- 
+
         assert(
-            goodAllowance.toNumber() == (account1Allowance).toNumber() && 
+            goodAllowance.eq(account1Allowance) && 
             account0Balance.eq(goodBalanceAccount0) && 
             account1Balance.eq(goodBalanceAccount1) && 
             account2Balance.eq(goodBalanceAccount2) && 
@@ -285,11 +285,11 @@ contract('VendingToken', (accounts) => {
 
         const totalSupply = await vending.totalSupply();
 
-        const sendValue1 = tw('0.001');
+        const sendValue1 = tw('0.002');
         const sendValue2 = tw('1');
-        const sendValue3 = tw('23.234531');
-        const sendValue4 = tw('1.222311111');
-        const sendValue5 = tw('11.2131313131');
+        const sendValue3 = tw('23.23453');
+        const sendValue4 = tw('1.2223');
+        const sendValue5 = tw('11.213');
         const totalSendValue = sendValue1.plus(sendValue2).plus(sendValue3).plus(sendValue4).plus(sendValue5);
 
         const transferValue1 = tw('1.0001');
@@ -332,9 +332,10 @@ contract('VendingToken', (accounts) => {
         const dividends0 = await vending.dividendsRightsOf(accounts[0]);
         const dividends1 = await vending.dividendsRightsOf(accounts[1]);
         const dividends2 = await vending.dividendsRightsOf(accounts[2]);
-        const releaseDividendsValue2 = dividends2;
-        const dividends3 = await vending.dividendsRightsOf(accounts[3]);
+        const dividends3 = await vending.dividendsRightsOf(accounts[3]);        
         const totalAllowedDividends = dividends0.plus(dividends1).plus(dividends2).plus(dividends3);
+        
+        const releaseDividendsValue2 = dividends2;
 
         let txFromAccount1 = await vending.releaseDividendsRights(releaseDividendsValue1, {from: accounts[1], gasPrice: gasPrice});
         
@@ -361,10 +362,10 @@ contract('VendingToken', (accounts) => {
         const balanceAccount1 = await web3.eth.getBalance(accounts[1]);
         const balanceAccount2 = await web3.eth.getBalance(accounts[2]);
         const balanceAccount3 = await web3.eth.getBalance(accounts[3]);
-  
+
         assert(
-            totalAllowedDividends.toNumber() == totalSendValue.toNumber() &&
-            totalAllowedDividends.toNumber() == totalGoodDividends.toNumber() &&
+            totalAllowedDividends.eq(totalSendValue) &&
+            totalAllowedDividends.eq(totalGoodDividends) &&
             totalBalance.eq(100e18) &&
             balanceAccount1 > startAccount1Balance &&
             dividends2.minus(releaseDividendsValue2).eq(dividends2AfterReleaseDividendsRights) &&
