@@ -2,9 +2,9 @@ const VendingToken = artifacts.require("./VendingToken.sol");
 // let ERC20DividendsToken = artifacts.require("./ERC20DividendsToken.sol");
 const web3 = global.web3;
 
-const tw = v=>web3.toBigNumber(v).mul(1e18);
+const tw = v => web3.toBigNumber(v).mul(1e18);
 //const tw = web3._extend.utils.toWei;
-const fw = v=>web3._extend.utils.fromWei(v).toString();
+const fw = v => web3._extend.utils.fromWei(v).toString();
 
 
 contract('VendingToken', (accounts) => {
