@@ -1,11 +1,11 @@
 pragma solidity ^0.4.23;
-import "../token/ERC20/ERC20DividendsTokenFull.sol";
+import "../token/ERC20/ERC20DividendsToken.sol";
 import "../ownership/Ownable.sol";
 
-contract VendingToken is ERC20DividendsTokenFull, Ownable {
+contract V2Token is ERC20DividendsToken, Ownable {
   uint constant DECIMAL_MULTIPLIER = 10 ** 18;
-  string public name = "Vending Token";
-  string public symbol = "VEND";
+  string public name = "Vending Token 2";
+  string public symbol = "VEND2";
   uint8 public decimals = 18;
 
   /**
@@ -16,6 +16,7 @@ contract VendingToken is ERC20DividendsTokenFull, Ownable {
   function releaseDividendsRightsForce(address _for, uint _value) external onlyOwner returns(bool) {
     return releaseDividendsRights_(_for, _value);
   }
+
 
   constructor() public {
     uint _totalSupply = 100 * DECIMAL_MULTIPLIER;

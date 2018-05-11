@@ -1,4 +1,5 @@
-node_modules/
+node_modules
+/doxity
 .idea/
 .vscode/
 .editorconfig
@@ -6,3 +7,5 @@ build/
 /*.cmd
 *.sh
 /*.deprecated
+docs/bundle.js.map
+.env

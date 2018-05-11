@@ -1,3 +1,10 @@
+# Documentation
+
+https://bankex.github.io/ERC20DividendsToken/
+
+
+# Deployment
+
 Use `truffle migrate --network ganache` to  deploy contract on ganache.
 
 Use 

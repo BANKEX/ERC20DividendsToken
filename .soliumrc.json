@@ -6,6 +6,7 @@
       "indentation": ["error", 2],
       "camelcase": "error",
       "mixedcase": "error",
-      "uppercase": "error"
+      "uppercase": "error",
+      "max-len": ["error", 250]
     }
   }
