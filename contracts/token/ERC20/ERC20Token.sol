@@ -33,10 +33,13 @@ contract ERC20Token is ERC20TokenInterface{
    * @param _value The amount of tokens to be transferred
    */
   function transfer_(address _from, address _to, uint _value) internal returns (bool) {
+    require(_from != _to);
+    uint _bfrom = balances[_from];
+    uint _bto = balances[_to];
     require(_to != address(0));
-    require(_value <= balances[_from]);
-    balances[_from] = balances[_from].sub(_value);
-    balances[_to] = balances[_to].add(_value);
+    require(_value <= _bfrom);
+    balances[_from] = _bfrom.sub(_value);
+    balances[_to] = _bto.add(_value);
     emit Transfer(_from, _to, _value);
     return true;
   }

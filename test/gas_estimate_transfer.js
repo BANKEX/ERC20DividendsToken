@@ -1,3 +1,4 @@
+/*
 var V2Token = artifacts.require("./V2Token.sol");
 var VendingToken = artifacts.require("./VendingToken.sol");
 
@@ -48,3 +49,4 @@ contract('V2Token (from ERC20DividendsToken)', (accounts) => {
     });
 });
 
+*/
