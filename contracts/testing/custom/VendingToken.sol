@@ -1,8 +1,9 @@
 pragma solidity ^0.4.23;
-import "../token/ERC20/ERC20DividendsToken.sol";
-import "../ownership/Ownable.sol";
+import "../../abstract/ERC20/ERC20Sec.sol";
+import "../../libs/ownership/Ownable.sol";
+import "../../abstract/Cassette/EtherCassette.sol";
 
-contract VendingToken is ERC20DividendsToken, Ownable {
+contract VendingToken is ERC20Sec, EtherCassette, Ownable {
   uint constant DECIMAL_MULTIPLIER = 10 ** 18;
   string public name = "Vending Token";
   string public symbol = "VEND";

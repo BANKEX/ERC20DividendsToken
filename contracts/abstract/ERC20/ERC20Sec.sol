@@ -2,15 +2,17 @@ pragma solidity ^0.4.23;
 
 
 
-import "../../math/SafeMath.sol";
-import "./ERC20Token.sol";
-import "./ERC20DividendsTokenInterface.sol";
+import "../../libs/math/SafeMath.sol";
+import "./IERC20.sol";
+import "./ERC20.sol";
+import "./IERC20Sec.sol";
+import "../Cassette/ICassette.sol";
 
 
 /**
  * @title Standard token with dividends distribution support
  */
-contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
+contract ERC20Sec is IERC20, IERC20Sec, ERC20, ICassette {
   using SafeMath for uint;
 
   uint constant DECIMAL_MULTIPLIER = 10 ** 18;
@@ -43,7 +45,7 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
     uint _dividendsRights = dividendsRightsOf_(_for);
     require(_dividendsRights >= _value);
     dividendsRightsFix[_for] -= _value;
-    msg.sender.transfer(_value);
+    releaseAbstractToken_(msg.sender, _value);
     emit ReleaseDividendsRights(_for, _value);
     return true;
   }
@@ -65,11 +67,15 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
    * @param _value uint the amount of tokens to be transferred
    */
   function dividendsRightsFixUpdate_(address _from, address _to, uint _value) private {
-    uint _dividendsPerToken = dividendsPerToken;
-    uint _balanceFrom = balances[_from];
-    uint _balanceTo = balances[_to];
-    dividendsRightsFix[_from] += _dividendsPerToken * _balanceFrom / DECIMAL_MULTIPLIER - _dividendsPerToken * (_balanceFrom - _value) / DECIMAL_MULTIPLIER;
-    dividendsRightsFix[_to] += _dividendsPerToken * _balanceTo / DECIMAL_MULTIPLIER - _dividendsPerToken * (_balanceTo + _value) / DECIMAL_MULTIPLIER; 
+    if (_from != _to) {
+      uint _dividendsPerToken = dividendsPerToken;
+      uint _balanceFrom = balances[_from];
+      uint _balanceTo = balances[_to];
+      dividendsRightsFix[_from] += _dividendsPerToken * _balanceFrom / DECIMAL_MULTIPLIER - 
+        _dividendsPerToken * (_balanceFrom - _value) / DECIMAL_MULTIPLIER;
+      dividendsRightsFix[_to] += _dividendsPerToken * _balanceTo / DECIMAL_MULTIPLIER - 
+        _dividendsPerToken * (_balanceTo + _value) / DECIMAL_MULTIPLIER; 
+    }
   }
 
   /**
@@ -99,9 +105,10 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
 
 
   /**
-   * @dev Accept dividends
+   * @dev Accept dividends in ether
    */
   function () public payable {
+    require(getCassetteType_()==CT_ETHER);
     uint _dividendsPerToken = dividendsPerToken;
     uint _totalSupply = totalSupply_;
     require(_totalSupply > 0);
@@ -109,5 +116,17 @@ contract ERC20DividendsToken is ERC20DividendsTokenInterface, ERC20Token {
     require(_dividendsPerToken.mul(_totalSupply) <= INT256_MAX);
     dividendsPerToken = _dividendsPerToken;
     emit AcceptDividends(msg.value);
+  }
+
+  function acceptDividends(uint _value) public {
+    require(getCassetteType_()==CT_TOKEN);
+    require(acceptAbstractToken_(_value));
+    uint _dividendsPerToken = dividendsPerToken;
+    uint _totalSupply = totalSupply_;
+    require(_totalSupply > 0);
+    _dividendsPerToken = _dividendsPerToken.add(_value.mul(DECIMAL_MULTIPLIER)/_totalSupply);
+    require(_dividendsPerToken.mul(_totalSupply) <= INT256_MAX);
+    dividendsPerToken = _dividendsPerToken;
+    emit AcceptDividends(_value);
   }
 }

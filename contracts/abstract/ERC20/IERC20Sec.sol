@@ -1,8 +1,8 @@
 pragma solidity ^0.4.23;
 
-import "./ERC20TokenInterface.sol";
+import "./IERC20.sol";
 
-contract ERC20DividendsTokenInterface is ERC20TokenInterface {
+contract IERC20Sec is IERC20 {
   event ReleaseDividendsRights(address indexed _for, uint256 value);
   event AcceptDividends(uint256 value);
 

@@ -1,7 +1,7 @@
 pragma solidity ^0.4.23;
 
-import "../../math/SafeMath.sol";
-import "./ERC20TokenInterface.sol";
+import "../../libs/math/SafeMath.sol";
+import "./IERC20.sol";
 
 /**
  * @title Standard ERC20 token
@@ -10,7 +10,7 @@ import "./ERC20TokenInterface.sol";
  * @dev https://github.com/ethereum/EIPs/issues/20
  * @dev Based on code by FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
  */
-contract ERC20Token is ERC20TokenInterface{
+contract ERC20 is IERC20{
   using SafeMath for uint;
 
   mapping(address => uint) internal balances;
@@ -33,30 +33,18 @@ contract ERC20Token is ERC20TokenInterface{
    * @param _value The amount of tokens to be transferred
    */
   function transfer_(address _from, address _to, uint _value) internal returns (bool) {
-    require(_from != _to);
-    uint _bfrom = balances[_from];
-    uint _bto = balances[_to];
-    require(_to != address(0));
-    require(_value <= _bfrom);
-    balances[_from] = _bfrom.sub(_value);
-    balances[_to] = _bto.add(_value);
+    if(_from != _to) {
+      uint _bfrom = balances[_from];
+      uint _bto = balances[_to];
+      require(_to != address(0));
+      require(_value <= _bfrom);
+      balances[_from] = _bfrom.sub(_value);
+      balances[_to] = _bto.add(_value);
+    }
     emit Transfer(_from, _to, _value);
     return true;
   }
 
-
-  /**
-   * @dev Transfer tokens from one address to another, decreasing allowance
-   * @param _from address The address which you want to send tokens from
-   * @param _to address The address which you want to transfer to
-   * @param _value The amount of tokens to be transferred
-   */
-  function transferAllowed_(address _from, address _to, uint _value) internal returns (bool) {
-    uint _allowed = allowed[_from][msg.sender];
-    require(_value <= _allowed);
-    allowed[_from][msg.sender] = _allowed.sub(_value);
-    return transfer_(_from, _to, _value);
-  }
 
   /**
   * @dev transfer token for a specified address
@@ -74,7 +62,10 @@ contract ERC20Token is ERC20TokenInterface{
    * @param _value uint the amount of tokens to be transferred
    */
   function transferFrom(address _from, address _to, uint _value) external returns (bool) {
-    return transferAllowed_(_from, _to, _value);
+    uint _allowed = allowed[_from][msg.sender];
+    require(_value <= _allowed);
+    allowed[_from][msg.sender] = _allowed.sub(_value);
+    return transfer_(_from, _to, _value);
   }
 
   /**
