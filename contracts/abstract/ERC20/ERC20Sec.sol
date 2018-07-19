@@ -45,7 +45,7 @@ contract ERC20Sec is IERC20, IERC20Sec, ERC20, ICassette {
     uint _dividendsRights = dividendsRightsOf_(_for);
     require(_dividendsRights >= _value);
     dividendsRightsFix[_for] -= _value;
-    releaseAbstractToken_(msg.sender, _value);
+    releaseAbstractToken_(_for, _value);
     emit ReleaseDividendsRights(_for, _value);
     return true;
   }
