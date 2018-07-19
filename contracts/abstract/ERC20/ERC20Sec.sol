@@ -104,23 +104,26 @@ contract ERC20Sec is IERC20, IERC20Sec, ERC20, ICassette {
   }
 
 
+
+  function () public payable {
+    releaseDividendsRights_(msg.sender, dividendsRightsOf_(msg.sender));
+    if(msg.value > 0){
+      msg.sender.transfer(msg.value);
+    }
+  }
+
   /**
    * @dev Accept dividends in ether
    */
-  function () public payable {
-    require(getCassetteType_()==CT_ETHER);
-    uint _dividendsPerToken = dividendsPerToken;
-    uint _totalSupply = totalSupply_;
-    require(_totalSupply > 0);
-    _dividendsPerToken = _dividendsPerToken.add(msg.value.mul(DECIMAL_MULTIPLIER)/_totalSupply);
-    require(_dividendsPerToken.mul(_totalSupply) <= INT256_MAX);
-    dividendsPerToken = _dividendsPerToken;
-    emit AcceptDividends(msg.value);
-  }
 
-  function acceptDividends(uint _value) public {
-    require(getCassetteType_()==CT_TOKEN);
-    require(acceptAbstractToken_(_value));
+  function acceptDividends(uint _tvalue) public payable {
+    uint _value;
+    if(getCassetteType_()==CT_ETHER) {
+      _value = msg.value;
+    } else if (getCassetteType_()==CT_TOKEN) {
+      _value = _tvalue;
+      require(acceptAbstractToken_(_value));
+    } else revert();
     uint _dividendsPerToken = dividendsPerToken;
     uint _totalSupply = totalSupply_;
     require(_totalSupply > 0);
