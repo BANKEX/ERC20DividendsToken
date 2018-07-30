@@ -89,9 +89,55 @@ contract('TechHives', (accounts) => {
         }
     });
 
-    it("should allow send investors their tokens to others and do it correctly");
-    it("should allow to use transferFrom correctly");
-    it("should allow to accept dividents and mint multiple times correctly");
+    it("should allow send investors their tokens to others and do it correctly", async () => {
+            await tech.mint(CREATOR, TEST_VALUE, {from: CREATOR});
+            for (let i = 1; i < 9; i++) {
+                await tech.transfer(accounts[i], tw(2), {from: CREATOR});
+                assert((tw(2)).eq(await tech.balanceOf(accounts[i])));
+            }
+            await tech.acceptDividends(TEST_ETH_VALUE, {from: accounts[0], value: TEST_ETH_VALUE});
+            let dpertoken = TEST_ETH_VALUE.mul(DECIMAL_MULT).div((TEST_VALUE));
+            let awaitableSum = (tw(2)).mul(dpertoken).div(DECIMAL_MULT);
+            for (let i = 1; i < 9; i++) {
+                let contractSum = await tech.dividendsRightsOf(accounts[i]);
+                assert(contractSum.eq(awaitableSum), `${awaitableSum.toString()} ++++++ ${contractSum.toString()}`);
+            }
+            let balancesBefore = [];
+            balancesBefore.push(0);
+            let gasUses = [];
+            gasUses.push(0);
+            for (let i = 1; i < 9; i++) {
+                let a = await web3.eth.getBalance(accounts[i]);
+                balancesBefore.push(a);
+            }
+            for (let i = 1; i < 9; i++) {
+                let contractSum = await tech.dividendsRightsOf(accounts[i]);
+                let instance = await tech.releaseDividendsRights(contractSum, {from: accounts[i], gasPrice: gasPrice});
+                let price = gasPrice.mul(instance.receipt.gasUsed);
+                gasUses.push(price);
+            }
+            for (let i = 1; i < 9; i++) {
+                let balanceNow = await web3.eth.getBalance(accounts[i]);
+                assert((balanceNow.plus(gasUses[i])).eq(balancesBefore[i].plus(awaitableSum)));
+            }
+            for (let i = 1; i < 9; i++) {
+                await tech.transfer(accounts[5], tw(1), {from: accounts[i]});
+            }
+            let bal = await tech.balanceOf(accounts[5]);
+            assert(bal.eq(tw(9)), `${bal.toString()}`);
+            await tech.acceptDividends(TEST_ETH_VALUE, {from: accounts[8], value: TEST_ETH_VALUE});
+            let contractSumOfacc = await tech.dividendsRightsOf(accounts[5]);
+            let balB = await web3.eth.getBalance(accounts[5]);
+            let instanse = await tech.releaseDividendsRights(contractSumOfacc, {from: accounts[5], gasPrice: gasPrice});
+            let priceD = gasPrice.mul(instanse.receipt.gasUsed);
+            let balA = await web3.eth.getBalance(accounts[5]);
+            assert((balA.plus(priceD)).eq(balB.plus(contractSumOfacc)));
+        }
+    );
+    it("should allow to use transferFrom correctly", async () => {
+
+    });
+    it("should allow to accept dividends and mint multiple times correctly");
     it("should allow to do everything listed before")
 
 });
