@@ -26,11 +26,11 @@ contract ERC20Sec is IERC20, IERC20Sec, ERC20, ICassette {
   * @param _owner The address to query the the balance of.
   * @return An uint representing the amount of dividends rights owned by the passed address.
   */
-  function dividendsRightsOf(address _owner) external view returns (uint balance) {
+  function dividendsRightsOf(address _owner) external view returns (uint) {
     return dividendsRightsOf_(_owner);
   }
 
-  function dividendsRightsOf_(address _owner) internal view returns (uint balance) {
+  function dividendsRightsOf_(address _owner) internal view returns (uint) {
     uint rights = dividendsPerToken * balances[_owner] / DECIMAL_MULTIPLIER + dividendsRightsFix[_owner];
     return int(rights) < 0 ? 0 : rights;
   }

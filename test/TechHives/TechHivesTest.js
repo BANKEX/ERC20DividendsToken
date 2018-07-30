@@ -89,4 +89,9 @@ contract('TechHives', (accounts) => {
         }
     });
 
+    it("should allow send investors their tokens to others and do it correctly");
+    it("should allow to use transferFrom correctly");
+    it("should allow to accept dividents and mint multiple times correctly");
+    it("should allow to do everything listed before")
+
 });
