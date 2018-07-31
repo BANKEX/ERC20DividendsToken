@@ -28,8 +28,8 @@ contract TechHives is ERC20Sec, EtherCassette, MultiOwnable {
     dividendsRightsFix[_for] += _dividendsPerToken * _balanceFor / DECIMAL_MULTIPLIER - 
       _dividendsPerToken * (_balanceFor + _value) / DECIMAL_MULTIPLIER; 
   }
-
-  function mint(address _for, uint _value) external onlyOwner returns(bool) {
+  
+  function mint_(address _for, uint _value) internal returns(bool) {
     require (mintSupply_ >= _value);
     dividendsRightsFixUpdate_(_for, _value);
     mintSupply_ = mintSupply_.sub(_value);
@@ -38,6 +38,11 @@ contract TechHives is ERC20Sec, EtherCassette, MultiOwnable {
     emit Transfer(address(0), _for, _value);
     return true;
   }
+
+  function mint(address _for, uint _value) external onlyOwner returns(bool) {
+    return mint_(_for, _value);
+  }
+  
   
   function mintSupply() external view returns(uint) {
       return mintSupply_;
