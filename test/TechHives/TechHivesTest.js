@@ -172,6 +172,4 @@ contract('TechHives', (accounts) => {
         NewSum = tbn(NewSum);
         assert(NewSum.eq(await tech.dividendsRightsOf(accounts[1])), `${NewSum.toString()} +++ ${(await tech.dividendsRightsOf(accounts[1])).toString()}`);
     });
-
-
 });
