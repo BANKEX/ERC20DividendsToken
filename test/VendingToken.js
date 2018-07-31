@@ -47,7 +47,7 @@ contract('VendingToken', (accounts) => {
             answer = await vending.allowance(accounts[0], accounts[i]);
             assert(good.eq(answer));
         }
-        
+
     })
 
     it("should show that account[1] allowed to tranfer 0.1 from account[0]", async function() {
@@ -102,7 +102,7 @@ contract('VendingToken', (accounts) => {
         let gasCost = gasPrice.mul(tx.receipt.gasUsed);
         assert(web3.eth.getBalance(accounts[0]).minus(balance).plus(gasCost).eq(good))
     })
-    
+
 
     it("should allow investor to get ALL his dividends", async function() {
         const good = tw("0.1");
