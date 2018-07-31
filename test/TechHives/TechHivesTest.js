@@ -3,6 +3,7 @@ const TechHives = artifacts.require("./TechHives.sol");
 const web3 = global.web3;
 
 const tw = v => web3.toBigNumber(v).mul(1e18);
+const tbn = v => web3.toBigNumber(v);
 //const tw = web3._extend.utils.toWei;
 const fw = v => web3._extend.utils.fromWei(v).toString();
 const gasPrice = tw("3e-7");
@@ -154,8 +155,23 @@ contract('TechHives', (accounts) => {
     });
 
     it("should allow to accept dividends and mint multiple times correctly", async () => {
-
+        await tech.mint(CREATOR, TEST_VALUE, {from: CREATOR});
+        await tech.transfer(accounts[1], tw(1), {from: CREATOR});
+        await tech.acceptDividends(TEST_ETH_VALUE, {from: CREATOR, value: TEST_ETH_VALUE});
+        let total = await tech.totalSupply();
+        let k = tw(1).div(total);
+        let awSum = k.mul(TEST_ETH_VALUE);
+        assert(awSum.eq(await tech.dividendsRightsOf(accounts[1])));
+        await tech.mint(CREATOR, tw(10), {from: CREATOR});
+        await tech.acceptDividends(tw(12), {from: CREATOR, value: tw(12)});
+        let newTotal = await tech.totalSupply();
+        let newK = tw(1).div(newTotal);
+        let NewSum = (tw(12).mul(newK)).plus(awSum);
+        NewSum = NewSum.toString();
+        NewSum = NewSum.substring(0, NewSum.length - 1);
+        NewSum = tbn(NewSum);
+        assert(NewSum.eq(await tech.dividendsRightsOf(accounts[1])), `${NewSum.toString()} +++ ${(await tech.dividendsRightsOf(accounts[1])).toString()}`);
     });
-    it("should allow to do everything listed before")
+
 
 });
