@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 import "../../abstract/ERC20/ERC20Sec.sol";
 import "../../libs/math/SafeMath.sol";
 import "../../libs/ownership/MultiOwnable.sol";
@@ -45,12 +45,13 @@ contract TechHives is ERC20Sec, EtherCassette, MultiOwnable {
   
   
   function mintSupply() external view returns(uint) {
-      return mintSupply_;
+    return mintSupply_;
   }
 
   constructor() public {
     mintSupply_ = 25000 * DECIMAL_MULTIPLIER;
     addOwner_(0x47FC2e245b983A92EB3359F06E31F34B107B6EF6);
+    //mint_(0x47FC2e245b983A92EB3359F06E31F34B107B6EF6, 10000e18);
     addOwner_(msg.sender);
   }
 }

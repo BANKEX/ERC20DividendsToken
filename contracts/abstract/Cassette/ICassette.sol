@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 contract ICassette {
   uint8 constant CT_ETHER = 0x01;
   uint8 constant CT_TOKEN = 0x02;

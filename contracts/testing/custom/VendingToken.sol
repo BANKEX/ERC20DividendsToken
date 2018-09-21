@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 import "../../abstract/ERC20/ERC20Sec.sol";
 import "../../libs/ownership/Ownable.sol";
 import "../../abstract/Cassette/EtherCassette.sol";
